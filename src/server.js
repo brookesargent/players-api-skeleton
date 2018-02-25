@@ -1,3 +1,6 @@
-// TODO
+var app = require('./app');
+var port = process.env.PORT || 3000;
 
-module.exports = {};
+app.listen(port, function(){
+    console.log('Gulp is running my app on  PORT: ' + port);
+});
