@@ -12,8 +12,7 @@ var userModel = new Schema({
            required: true,
            unique: true},
   password: { type: String,
-              required: true,
-              select: false }
+              required: true }
 });
 
 // Duplicate the ID field.

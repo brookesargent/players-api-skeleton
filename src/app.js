@@ -11,12 +11,11 @@ var app = express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
-userRouter = require('./routes/userRoute')(User);
-
+var userRouter = require('./routes/userRoute')(User);
 app.use('/api/user', userRouter);
 
-app.get('/', function(req, res){
-    res.send('welcome to my API!');
-});
+var authRouter = require('./routes/authRoute')(User);
+app.use('/api/login', authRouter);
+
 
 module.exports = app;
