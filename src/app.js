@@ -2,10 +2,11 @@ var express = require('express'),
     db = require('./db');
     bodyParser = require('body-parser');
 
-var User = require('./models/userModel');
-var Player = require('./models/playerModel');
+var User = require('./models/User');
+var Player = require('./models/Player');
 
 var app = express();
+
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());

@@ -1,7 +1,7 @@
-var Player = require('./playerModel');
-var User = require('./userModel');
+var Player = require('./Player');
+var User = require('./User');
 
 module.exports = {
-  Player: {},
-  User: {}
+  Player,
+  User
 };
