@@ -1,5 +1,5 @@
 var jwt = require('jsonwebtoken');
-var config = require('../config');
+var config = require('../auth/dbConfig');
 
 var userController = function(User) {
     //creates a new user

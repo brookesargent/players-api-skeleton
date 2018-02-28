@@ -17,5 +17,7 @@ app.use('/api/user', userRouter);
 var authRouter = require('./routes/authRoute')(User);
 app.use('/api/login', authRouter);
 
+var playerRouter = require('./routes/playerRoute')(Player);
+app.use('/api/players', playerRouter);
 
 module.exports = app;

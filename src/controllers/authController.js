@@ -1,10 +1,9 @@
 var jwt = require('jsonwebtoken'); 
 var bcrypt = require('bcrypt');
-var config = require('../config'); 
+var config = require('../auth/dbConfig'); 
 
 var authController = function(User) {
     var post = function(req, res) {
-        console.log('in post');
         User.findOne({ email: req.body.email },
            function (err, user) {
             if (err) return res.status(500).send('Error on the server');
