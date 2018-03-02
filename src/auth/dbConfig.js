@@ -1,4 +1,4 @@
 module.exports = {
-    'secret': 'shhh',
+    'secret': 'secret',
     'database': 'mongodb://localhost/playersAPI'
 };
