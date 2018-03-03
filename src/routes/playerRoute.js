@@ -1,8 +1,6 @@
 var express = require('express');
 var app = require('../app');
-var jwt = require('jwt-simple');
-var config = require('../auth/dbConfig');
-var User = require('../models/User');
+var auth = require('../auth/auth');
 
 var routes = function(Player) {
     var playerRouter = express.Router();
@@ -11,35 +9,21 @@ var routes = function(Player) {
         .post(playerController.post)
         .get(playerController.get)
 
-        playerRouter.use('/:id', function(req, res, next){
+        playerRouter.use('/:id', async function(req, res, next){
         var authorization = req.get('authorization');
 
         if (authorization == null) {
             return res.status('403').send('Token is null');
         }
 
-        var token = authorization.split('Bearer ')[1];
-        var userid;
-
-        var decoded = jwt.decode(token,
-        config.secret);
-
-        if (decoded.exp <= Date.now()) {
-            //res.status('409').send('Access token has expired');
-        }
-
-        User.findOne({ _id: decoded.id }, function(err, user) {
-            if (user) {
-                userid = user.id;
-            } 
-        });
+        var user = await auth.user(authorization);
 
             Player.findById(req.params.id, function(err, player) {
                 if (player == null) {
                     res.status(404).send('No player found.');
                 }
 
-                else if (player.created_by != userid) {
+                else if (player.created_by != user.id) {
                     res.status(404).send('Player created by another user');
                 }
                 else if (err) 

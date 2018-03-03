@@ -1,18 +1,13 @@
-var jwt = require('jwt-simple');
-var config = require('../auth/dbConfig');
-var User = require('../models/User');
+var auth = require('../auth/auth');
+var User = require('../models/User'); 
 
 var playerController = function(Player) {
     var post = async function(req, res) {
-        var playerid;
         var player = await Player.findOne({first_name: req.body.first_name, last_name: req.body.last_name}).exec();
 
         if (player) {
             return res.status(409).send('Player with name already exists');
         }
-            
-
-        //add some error handling here
 
         var authorization = req.get('authorization');
 
@@ -20,25 +15,10 @@ var playerController = function(Player) {
             return res.status('403').send('Token is null');
         }
 
-        var token = authorization.split('Bearer ')[1];
-        var userid;
-
-        var decoded = jwt.decode(token,
-        config.secret);
-
-        if (decoded.exp <= Date.now()) {
-            //res.status('409').send('Access token has expired');
-        }
-
-        User.findOne({ _id: decoded.id }, function(err, user) {
-            if (user) {
-                userid = user.id;
-                console.log("user id who created player: " + userid);
-            } 
-        });
+        var user = await auth.user(authorization);
         
         Player.create({
-          created_by: userid,
+          created_by: user.id,
           first_name: req.body.first_name,
           last_name: req.body.last_name,
           rating: parseInt(req.body.rating),
@@ -62,17 +42,7 @@ var playerController = function(Player) {
             return res.status('403').send('Token is null');
         }
 
-        var token = authorization.split('Bearer ')[1];
-        var userid;
-
-        var decoded = jwt.decode(token,
-        config.secret);
-
-        if (decoded.exp <= Date.now()) {
-            //res.status('409').send('Access token has expired');
-        }
-
-        var user = await User.findOne({ _id: decoded.id }).exec();
+        var user = await auth.user(authorization);
 
         var players = await Player.find({created_by: user._id}).exec();
 
