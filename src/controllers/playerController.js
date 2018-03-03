@@ -27,10 +27,9 @@ var playerController = function(Player) {
             if (err)
             return res.status(409).send(err.message);
 
-            res.status(201);
-            res.json({
-                success: true,
-                player: player
+            res.status(201).send({
+                "success": true,
+                "player": player
             });
         });
     }
@@ -56,6 +55,5 @@ var playerController = function(Player) {
         get: get
     }
 }
-
 
 module.exports = playerController;

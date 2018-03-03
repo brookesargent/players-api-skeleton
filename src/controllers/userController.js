@@ -26,11 +26,10 @@ var userController = function(User) {
             var token = jwt.sign(payload, config.secret, {
                 expiresIn: 1440
             });
-            res.status(201);
-            res.json({
-                success: true,
-                user: user,
-                token: token
+            res.status(201).send({
+                "success": true,
+                "user": user,
+                "token": token
             });
         });
     }

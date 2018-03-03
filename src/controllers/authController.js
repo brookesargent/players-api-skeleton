@@ -15,11 +15,10 @@ var authController = function(User) {
             var token = jwt.sign({ id: user._id}, config.secret, {
                 expiresIn: 86400
             });
-            res.status(200);
-            res.json({
-                success: true,
-                user: user,
-                token: token
+            res.status(200).send({
+                "success": true,
+                "user": user,
+                "token": token
             });
         });
     }
