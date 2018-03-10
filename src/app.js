@@ -4,6 +4,7 @@ var express = require('express'),
 
 var User = require('./models/User');
 var Player = require('./models/Player');
+var Match = require('./models/Match');
 
 var app = express();
 
@@ -18,5 +19,8 @@ app.use('/api/login', authRouter);
 
 var playerRouter = require('./routes/playerRoute')(Player);
 app.use('/api/players', playerRouter);
+
+var matchRouter = require('./routes/matchRoute')(Match);
+app.use('/api/match', matchRouter);
 
 module.exports = app;

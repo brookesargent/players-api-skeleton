@@ -8,45 +8,52 @@ let token, user;
 describe ('Match API',  () => {
     before(async () => {
         await User.remove({});
-        await Player.remove({});
-
-        //create user 1
         const res = await chai.request(server)
-          .post('/api/user')
-          .send(data.user);
+        .post('/api/user')
+        .send(data.user);
         token = res.body.token;
         user = res.body.user;
         data.player.created_by = user.id;
+        data.player3.created_by = user.id;
 
-       //create user 2
        const res2 = await chai.request(server)
           .post('/api/user')
           .send(data.user2);
-        token = res.body.token;
-        user2 = res.body.user;
+        token2 = res2.body.token;
+        user2 = res2.body.user;
         data.player2.created_by = user2.id;
 
-        //create player 1
-        const res3 = await chai.request(server)
-            .post('/api/player')
+        await Player.remove({});
+       const res3 = await chai.request(server)
+            .post('/api/players')
+            .set('Authorization', `Bearer ${ token }`)
             .send(data.player);
-        token = res.body.token;
-        player = res.body.player;
+        player = res3.body.player;
         data.match.player1 = player.id;
+        data.match2.player1 = player.id;
+        data.match.winner = player.id;
 
-        //create player 2
         const res4 = await chai.request(server)
-            .post('/api/player')
+            .post('/api/players')
+            .set('Authorization', `Bearer ${ token2 }`)
             .send(data.player2);
-        token = res.body.token;
-        player2 = res.body.player2;
+        player2 = res4.body.player;
         data.match.player2 = player2.id;
+
+        const res5 = await chai.request(server)
+              .post('/api/players')
+              .set('Authorization', `Bearer ${ token }`)
+              .send(data.player3);
+        player3 = res5.body.player;
+        data.match2.player2 = player3.id;
+        data.match.winner = player3.id;
       });
     
     describe('POST /api/match', () => {
         beforeEach(async () => {
             await Match.remove({});
           });
+          
           //should fail if token not provided
           it('should fail if token not provided', done => {
             chai.request(server)
@@ -73,38 +80,38 @@ describe ('Match API',  () => {
                 });
             });
           });
+        
+          //should succeed and show match data if created
+        it('should deliver match if successful', done => {
+          chai.request(server)
+            .post('/api/match')
+            .send(data.match)
+            .set('Authorization', `Bearer ${ token }`)
+            .end((err, res) => {
+              expect(err).not.to.exist;
+              expect(res.status).to.equal(201);
+              expect(res.body).to.be.a('object');
+              expect(res.body.success).to.be.true;
+              expect(res.body.match).to.be.a('object');
+              done();
+            });
+        });
 
         //should fail if players aren't able to play against each other
-        it('should fail if players cannot play against one another', done => {
+        it('should fail if players owned by same user', done => {
             chai.request(server)
               .post('/api/match')
-              .send(data.match)
+              .send(data.match2)
               .set('Authorization', `Bearer ${ token }`)
-              .end((err, res) => {
-                expect(err).not.to.exist;
+              .end(err => {
+                expect(err).to.exist;
                 expect(err.status).to.equal(409);
-                done();
-              });
-          });
-
-        //should succeed and show match data if created
-        it('should deliver match if successful', done => {
-            chai.request(server)
-              .post('/api/match')
-              .send(data.match)
-              .set('Authorization', `Bearer ${ token }`)
-              .end((err, res) => {
-                expect(err).not.to.exist;
-                expect(res.status).to.equal(201);
-                expect(res.body).to.be.a('object');
-                expect(res.body.success).to.be.true;
-                expect(res.body.player).to.be.a('object');
                 done();
               });
           });
     });
 
-    describe('GET /api/match', () => {
+    /*describe('GET /api/match', () => {
         //should fail if token not provided
         //should deliver empty array if no matches
         //should deliver all matches
@@ -123,5 +130,5 @@ describe ('Match API',  () => {
         //should deliver a ranked list of every player who has engaged in a match
         //should deliver ranked list correctly calculated
         //should deliver list in order from top ranked to bottom ranked
-    });
+    });*/
 });

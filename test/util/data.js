@@ -28,8 +28,18 @@ module.exports = {
     rating: 8000,
     handedness: 'right'
   },
+  player3: {
+    first_name: 'Willow',
+    last_name: 'Rosenberg',
+    rating: 7000,
+    handedness: 'left'
+  },
   match: {
     player1_score: 11,
     player2_score: 4
+  },
+  match2: {
+    player1_score: 5,
+    player2_score: 11
   }
 };
