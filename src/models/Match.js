@@ -15,4 +15,14 @@ var matchModel = new Schema({
             required: true }
 });
 
+// Duplicate the ID field.
+matchModel.virtual('id').get(function(){
+    return this._id.toHexString();
+  });
+  
+  // Ensure virtual fields are serialised.
+matchModel.set('toJSON', {
+    virtuals: true
+  });
+
 module.exports = mongoose.model('Match', matchModel);
