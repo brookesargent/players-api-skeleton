@@ -46,7 +46,7 @@ describe ('Match API',  () => {
               .send(data.player3);
         player3 = res5.body.player;
         data.match2.player2 = player3.id;
-        data.match.winner = player3.id;
+        data.match2.winner = player3.id;
       });
     
     describe('POST /api/match', () => {
@@ -113,7 +113,7 @@ describe ('Match API',  () => {
 
     describe('GET /api/match', () => {
       beforeEach(async () => {
-        await Player.remove({});
+        await Match.remove({});
       });
         //should fail if token not provided
         it('should fail if token not provided', done => {
@@ -146,16 +146,81 @@ describe ('Match API',  () => {
         });
         
         //should deliver all matches
+        it('should deliver all matches', async () => {
+          await Match.create(data.match);
+    
+          let res, error;
+          try {
+            res = await chai.request(server)
+              .get('/api/match')
+              .set('Authorization', `Bearer ${ token }`);
+          } catch (err) {
+            error = err;
+          }
+    
+          expect(error).not.to.exist;
+          expect(res.status).to.equal(200);
+          expect(res.body).to.be.a('object');
+          expect(res.body.success).to.be.true;
+          expect(res.body.matches).to.be.a('array');
+          expect(res.body.matches.length).to.equal(1);
+    
+          res.body.matches.forEach(match => expect(match.id).to.be.a('string'));
+        });
     });
 
-    /*describe('GET /api/match/:playerid', () => {
+    describe('GET /api/match/:playerid', () => {
+      beforeEach(async () => {
+        await Match.remove({});
+      });
+      
         //should fail if token not provided
+        it('should fail if token not provided', done => {
+          chai.request(server)
+          .get(`/api/match/${ player.id }`)
+            .end(err => {
+              expect(err).to.exist;
+              expect(err.status).to.equal(403);
+              done();
+            });
+        });
+
         //should fail if player does not exist
-        //should deliver wins and losses for player 
-        //should fail if wins and losses calculated don't match db
+        it('should fail if player does not exist', async () => {
+          chai.request(server)
+          .get(`/api/match/${ player.id }`)
+            .end(err => {
+              expect(err).to.exist;
+              expect(err.status).to.equal(404);
+              done();
+          });
+        });
+
+        //should deliver correct count of wins and losses for player 
+        it('should deliver wins and losses for player', async () => {
+          await Match.create(data.match);
+
+          let res, error;
+          try {
+            res = await chai.request(server)
+              .get(`/api/match/${ player.id }`)
+              .set('Authorization', `Bearer ${ token }`);
+          } catch (err) {
+            error = err;
+          }
+
+          expect(error).not.to.exist;
+          expect(res.status).to.equal(200);
+          expect(res.body).to.be.a('object');
+          expect(res.body.success).to.be.true;
+          expect(res.body.wins).to.be.a('number');
+          expect(res.body.losses).to.be.a('number');
+          expect(res.body.wins).to.equal(1);
+          expect(res.body.losses).to.equal(0);
+        });
     });
 
-    describe('GET /api/match/rankings', () => {
+    /*describe('GET /api/match/rankings', () => {
         //should fail if token not provided
         //should return empty array if no matches exist
         //should deliver a ranked list of every player who has engaged in a match
