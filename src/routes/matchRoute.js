@@ -17,7 +17,6 @@ var routes = function(Match) {
             }
     
             var user = await auth.user(authorization);
-            console.log(req.params.playerId);
             Player.findById(req.params.playerId, function(err, player) {
                 if (player == null) {
                     res.status(404).send('No player found.');
