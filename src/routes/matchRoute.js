@@ -7,6 +7,7 @@ var routes = function(Match) {
     var matchController = require('../controllers/matchController')(Match);
     matchRouter.route('/')
         .post(matchController.post)
+        .get(matchController.get)
 
     return matchRouter;
 };

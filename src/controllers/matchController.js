@@ -45,8 +45,26 @@ var matchController = function(Match) {
             });
         });
     }
+
+    var get = async function(req, res) {
+        var authorization = req.get('authorization');
+
+        if (authorization == null) {
+            return res.status('403').send('Token is null');
+        }
+
+        var user = await auth.user(authorization);
+
+        var matches = await Match.find().exec();
+
+        if (matches) {
+            return res.status(200).send({'success': true, 'matches': matches});
+        }
+    }
+
     return {
-        post: post
+        post: post,
+        get: get
     }
 }
 

@@ -111,13 +111,44 @@ describe ('Match API',  () => {
           });
     });
 
-    /*describe('GET /api/match', () => {
+    describe('GET /api/match', () => {
+      beforeEach(async () => {
+        await Player.remove({});
+      });
         //should fail if token not provided
+        it('should fail if token not provided', done => {
+          chai.request(server)
+            .get('/api/match')
+            .end(err => {
+              expect(err).to.exist;
+              expect(err.status).to.equal(403);
+              done();
+            });
+        });
+
         //should deliver empty array if no matches
+        it('should deliver an empty array if no matches', async () => {
+          let res, error;
+          try {
+            res = await chai.request(server)
+              .get('/api/match')
+              .set('Authorization', `Bearer ${ token }`);
+          } catch (err) {
+            error = err;
+          }
+          expect(error).not.to.exist;
+          expect(res.status).to.equal(200);
+          expect(res.body).to.be.a('object');
+          expect(res.body.success).to.be.true;
+          expect(res.body.matches).to.exist;
+          expect(res.body.matches).to.be.a('array');
+          expect(res.body.matches.length).to.equal(0);
+        });
+        
         //should deliver all matches
     });
 
-    describe('GET /api/match/:playerid', () => {
+    /*describe('GET /api/match/:playerid', () => {
         //should fail if token not provided
         //should fail if player does not exist
         //should deliver wins and losses for player 
