@@ -39,6 +39,7 @@ describe ('Match API',  () => {
             .send(data.player2);
         player2 = res4.body.player;
         data.match.player2 = player2.id;
+        data.match3.player1 = player2.id;
 
         const res5 = await chai.request(server)
               .post('/api/players')
@@ -47,6 +48,14 @@ describe ('Match API',  () => {
         player3 = res5.body.player;
         data.match2.player2 = player3.id;
         data.match2.winner = player3.id;
+
+        const res6 = await chai.request(server)
+              .post('/api/players')
+              .set('Authorization', `Bearer ${ token }`)
+              .send(data.player4);
+        player4 = res6.body.player;
+        data.match3.player2 = player4.id;
+        data.match3.winner = player4.id;
       });
     
     describe('POST /api/match', () => {
@@ -109,6 +118,25 @@ describe ('Match API',  () => {
                 done();
               });
           });
+
+        //should update winner rating based on match scores
+        it('should update winner rating based on scores', async () =>  {
+          let res, error, player;
+          try {
+            res = await chai.request(server)
+              .post('/api/match')
+              .send(data.match3)
+              .set('Authorization', `Bearer ${ token }`);
+
+              player = await Player.findById(data.match3.winner);
+          } catch (err) {
+            error = err;
+          }
+
+          expect(error).not.to.exist;
+          expect(res.status).to.equal(201);
+          expect(player.rating).to.equal(8029);         
+        });
     });
 
     describe('GET /api/match', () => {
@@ -167,13 +195,15 @@ describe ('Match API',  () => {
     
           res.body.matches.forEach(match => expect(match.id).to.be.a('string'));
         });
+
+        
     });
 
     describe('GET /api/match/:playerid', () => {
       beforeEach(async () => {
         await Match.remove({});
       });
-      
+
         //should fail if token not provided
         it('should fail if token not provided', done => {
           chai.request(server)
@@ -220,11 +250,79 @@ describe ('Match API',  () => {
         });
     });
 
-    /*describe('GET /api/match/rankings', () => {
+    describe('GET /api/match/rankings', () => {
+      beforeEach(async () => {
+        await Match.remove({});
+      });
+
         //should fail if token not provided
+        it('should fail if token not provided', done => {
+          chai.request(server)
+            .get('/api/match/rankings')
+            .end(err => {
+              expect(err).to.exist;
+              expect(err.status).to.equal(403);
+              done();
+            });
+        });
+
         //should return empty array if no matches exist
-        //should deliver a ranked list of every player who has engaged in a match
-        //should deliver ranked list correctly calculated
-        //should deliver list in order from top ranked to bottom ranked
-    });*/
+        it('should deliver an empty array if no matches', async () => {
+        let res, error;
+          try {
+            res = await chai.request(server)
+              .get('/api/match/rankings')
+              .set('Authorization', `Bearer ${ token }`);
+          } catch (err) {
+            error = err;
+          }
+          expect(error).not.to.exist;
+          expect(res.status).to.equal(200);
+          expect(res.body).to.be.a('object');
+          expect(res.body.success).to.be.true;
+          expect(res.body.rankings).to.exist;
+          expect(res.body.rankings).to.be.a('array');
+          expect(res.body.rankings.length).to.equal(0);
+        });
+
+        //should fail if a player who hasn't engaged in a match is ranked
+        it('should not rank players who have not played a match', async () => {
+          await Match.create(data.match);
+          let res, error;
+          try {
+            res = await chai.request(server)
+              .get('/api/match/rankings')
+              .set('Authorization', `Bearer ${ token }`);
+          } catch (err) {
+            error = err;
+          }
+          expect(error).not.to.exist;
+          expect(res.status).to.equal(200);
+          expect(res.body).to.be.a('object');
+          expect(res.body.success).to.be.true;
+          expect(res.body.rankings).to.exist;
+          expect(res.body.rankings).to.be.a('array');
+          expect(res.body.rankings.length).to.equal(2);
+        });
+        
+        //should deliver list with correct percentages in order from top ranked to bottom ranked
+        it('should deliver rankings in correct order', async () => {
+          await Match.create(data.match);
+          let res, error;
+          try {
+            res = await chai.request(server)
+              .get('/api/match/rankings')
+              .set('Authorization', `Bearer ${ token }`);
+          } catch(err) {
+            error = err;
+          }
+          expect(error).not.to.exist;
+          expect(res.status).to.equal(200);
+          expect(res.body).to.be.a('object');
+          expect(res.body.rankings).to.exist;
+          expect(res.body.rankings).to.be.a('array');
+          expect(res.body.rankings[0].winPercentage).to.equal(100);
+          expect(res.body.rankings[1].winPercentage).to.equal(0);
+        });
+    });
 });

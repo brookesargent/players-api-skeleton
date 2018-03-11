@@ -2,6 +2,7 @@ var auth = require('../auth/auth');
 var User = require('../models/User'); 
 var Player = require('../models/Player');
 var ObjectId = require('mongodb').ObjectID;
+var calculations = require('../helpers/calculations');
 
 var matchController = function(Match) {
     var post = async function(req, res) {
@@ -35,14 +36,16 @@ var matchController = function(Match) {
           winner: req.body.winner
         }, function(err, match) {
             if (err){
+                console.log(err.message);
                 return res.status(409).send(err.message);
             }
             
-
             res.status(201).send({
                 "success": true,
                 "match": match
             });
+
+            calculations.updatePlayerRating(player1, player2, match.winner);
         });
     }
 

@@ -34,12 +34,22 @@ module.exports = {
     rating: 7000,
     handedness: 'left'
   },
+  player4: {
+    first_name: 'Tara',
+    last_name: 'Maclay',
+    rating: 8022,
+    handedness: 'right'
+  },
   match: {
     player1_score: 11,
     player2_score: 4
   },
   match2: {
     player1_score: 5,
+    player2_score: 11
+  },
+  match3: {
+    player1_score: 6,
     player2_score: 11
   }
 };
