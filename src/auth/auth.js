@@ -28,16 +28,14 @@ var isAuthorized = async function(req, res, next) {
   User.findById(decoded.id).exec(function(error, user) {
     if (error) {
       return next(error);
-    } else {
-      if (user === null) {
-        var err = new Error('Not authorized');
-        err.status = 403;
-        return next(err);
-      }
-      return next();
     }
+    if (user === null) {
+      var err = new Error('Not authorized');
+      err.status = 403;
+      return next(err);
+    }
+    return next();
   });
-
 
   req.decoded = await User.findOne({ _id: decoded.id }).exec();
   return;
