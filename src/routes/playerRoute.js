@@ -1,52 +1,39 @@
 var express = require('express');
-var app = require('../app');
 var auth = require('../auth/auth');
 
 var routes = function(Player) {
-    var playerRouter = express.Router();
-    var playerController = require('../controllers/playerController')(Player);
-    playerRouter.route('/')
-        .post(playerController.post)
-        .get(playerController.get)
+  var playerRouter = express.Router();
+  var playerController = require('../controllers/playerController')(Player);
+  playerRouter.use(auth.isAuthorized);
+  playerRouter.route('/')
+    .post(playerController.post)
+    .get(playerController.get);
 
-        playerRouter.use('/:id', async function(req, res, next){
-        var authorization = req.get('authorization');
+  playerRouter.use('/:id', async function(req, res, next) {
+    var user = await auth.user(req, res, next);
 
-        if (authorization == null) {
-            return res.status('403').send('Token is null');
-        }
+    Player.findById(req.params.id, function(err, player) {
+      if (player === null || player === undefined) {
+        res.status(404).send('No player found.');
+      } else if (player.created_by !== user.id) {
+        res.status(404).send('Player created by another user');
+      } else if (err) { res.status(500).send(err); } else {
+        req.player = player;
+        next();
+      }
+    });
+  });
 
-        var user = await auth.user(authorization);
+  playerRouter.route('/:id')
+    .delete(function(req, res) {
+      req.player.remove(function(err) {
+        if (err) { return res.status(500).send(err); }
 
-            Player.findById(req.params.id, function(err, player) {
-                if (player == null) {
-                    res.status(404).send('No player found.');
-                }
+        return res.status(200).send({'success': true});
 
-                else if (player.created_by != user.id) {
-                    res.status(404).send('Player created by another user');
-                }
-                else if (err) 
-                 res.status(500).send(err);
-
-                 else {
-                    req.player = player;
-                    next();
-                 }
-            });
-        });
-
-        playerRouter.route('/:id')
-        .delete(function(req,res){
-            req.player.remove(function(err){
-                if(err)
-                    return res.status(500).send(err);
-                else{
-                    return res.status(200).send({'success': true});
-                }
-            });
-        });
-        return playerRouter;
+      });
+    });
+  return playerRouter;
 };
 
 module.exports = routes;

@@ -1,20 +1,20 @@
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 var playerModel = new Schema({
   created_by: { type: String },
   first_name: { type: String,
-                required: true },
+    required: true },
   last_name: { type: String,
-               required: true},
+    required: true},
   rating: { type: Number,
-            required: true },
+    required: true },
   handedness: { type: String, enum: ['left', 'right'],
-                required: true}
+    required: true}
 });
 
 // Duplicate the ID field.
-playerModel.virtual('id').get(function(){
+playerModel.virtual('id').get(function() {
   return this._id.toHexString();
 });
 

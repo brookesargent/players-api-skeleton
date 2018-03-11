@@ -1,28 +1,28 @@
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 var matchModel = new Schema({
   created_by: { type: String },
   player1: { type: String,
-             required: true },
+    required: true },
   player2: { type: String,
-             required: true},
+    required: true},
   player1_score: { type: Number,
-                   required: true },
+    required: true },
   player2_score: { type: Number,
-                   required: true },
+    required: true },
   winner: { type: String,
-            required: true }
+    required: true }
 });
 
 // Duplicate the ID field.
-matchModel.virtual('id').get(function(){
-    return this._id.toHexString();
-  });
-  
-  // Ensure virtual fields are serialised.
+matchModel.virtual('id').get(function() {
+  return this._id.toHexString();
+});
+
+// Ensure virtual fields are serialised.
 matchModel.set('toJSON', {
-    virtuals: true
-  });
+  virtuals: true
+});
 
 module.exports = mongoose.model('Match', matchModel);

@@ -1,4 +1,5 @@
+require('dotenv').config();
 module.exports = {
-    'secret': 'secret',
-    'database': 'mongodb://localhost/playersAPI'
+  'secret': process.env.secret,
+  'database': process.env.db
 };
