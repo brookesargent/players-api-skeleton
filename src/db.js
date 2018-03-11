@@ -1,3 +1,4 @@
+require('dotenv').config();
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/playersAPI');
+mongoose.connect(process.env.db);
 
