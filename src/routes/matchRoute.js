@@ -6,29 +6,11 @@ var calculations = require('../helpers/calculations');
 var routes = function(Match) {
   var matchRouter = express.Router();
   var matchController = require('../controllers/matchController')(Match);
-<<<<<<< HEAD
   matchRouter.use(auth.isAuthorized);
-=======
->>>>>>> 9082c168a7395eb4db1d846bde232761c91cc584
   matchRouter.route('/')
     .post(matchController.post)
     .get(matchController.get);
 
-<<<<<<< HEAD
-=======
-  matchRouter.use('/rankings', async function(req, res, next) {
-    var authorization = req.get('authorization');
-
-    if (authorization === null) {
-      return res.status('403').send('Token is null');
-    }
-
-    await auth.user(authorization);
-
-    next();
-  });
-
->>>>>>> 9082c168a7395eb4db1d846bde232761c91cc584
   matchRouter.route('/rankings')
     .get(async function(req, res) {
       //get an array of ALL players
@@ -57,20 +39,8 @@ var routes = function(Match) {
     });
 
   matchRouter.use('/:playerId', async function(req, res, next) {
-<<<<<<< HEAD
     Player.findById(req.params.playerId, function(err, player) {
       if (player === null || player === undefined) {
-=======
-    var authorization = req.get('authorization');
-
-    if (authorization === null) {
-      return res.status('403').send('Token is null');
-    }
-
-    await auth.user(authorization);
-    Player.findById(req.params.playerId, function(err, player) {
-      if (player === null) {
->>>>>>> 9082c168a7395eb4db1d846bde232761c91cc584
         res.status(404).send('No player found.');
       } else if (err) {
         res.status(500).send(err);
